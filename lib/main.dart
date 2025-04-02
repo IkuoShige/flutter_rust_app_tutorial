@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_rust_app/src/rust/api/simple.dart';
-import 'package:flutter_rust_app/src/rust/frb_generated.dart';
+import 'package:my_app/src/rust/api/simple.dart';
+import 'package:my_app/src/rust/frb_generated.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  // Initialize Rust library
+Future<void> main() async {
   await RustLib.init();
   runApp(const MyApp());
 }
@@ -15,110 +13,124 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Rust Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const MyHomePage(title: 'Flutter Rust Linux Demo'),
+      home: const CounterScreen(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
+class CounterScreen extends StatefulWidget {
+  const CounterScreen({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<CounterScreen> createState() => _CounterScreenState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  // Use AppState to match Rust's structure
-  late AppState _appState;
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _initRust();
-  }
-
-  Future<void> _initRust() async {
-    try {
-      // Get the initial state from Rust
-      final initialState = await getInitialState();
-      setState(() {
-        _appState = initialState;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _appState = AppState(counter: 0, message: "Error connecting to Rust: $e");
-        _isLoading = false;
-      });
-    }
-  }
+class _CounterScreenState extends State<CounterScreen> {
+  int _counter = 0;
 
   void _incrementCounter() async {
-    final result = await incrementCounter(state: _appState);
+    final result = await incrementCounter(value: _counter);
     setState(() {
-      _appState = result;
+      _counter = result;
     });
   }
 
   void _decrementCounter() async {
-    final result = await decrementCounter(state: _appState);
+    final result = await decrementCounter(value: _counter);
     setState(() {
-      _appState = result;
+      _counter = result;
     });
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
+Widget build(BuildContext context) {
+  return Scaffold(
+    backgroundColor: const Color(0xFFF5F5F7),
+    appBar: AppBar(
+      elevation: 0,
+      backgroundColor: Colors.lightBlue,
+      title: const Text('Rustカウンター', 
+        style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF333333)),
       ),
-      body: Center(
-        child: _isLoading
-            ? const CircularProgressIndicator()
-            : Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  const Text(
-                    'You have pushed the button this many times:',
-                  ),
-                  Text(
-                    '${_appState.counter}',
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    _appState.message,
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
-                ],
-              ),
-      ),
-      floatingActionButton: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
+      centerTitle: true,
+    ),
+    body: Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          FloatingActionButton(
-            onPressed: _isLoading ? null : _incrementCounter,
-            tooltip: 'Increment',
-            child: const Icon(Icons.add),
+          // カウンター表示を魅力的に
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.08),
+                  blurRadius: 20,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                const Text(
+                  'カウンター値',
+                  style: TextStyle(fontSize: 16, color: Color(0xFF666666)),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '$_counter',
+                  style: const TextStyle(
+                    fontSize: 56, 
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF333333),
+                  ),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 10),
-          FloatingActionButton(
-            onPressed: _isLoading ? null : _decrementCounter,
-            tooltip: 'Decrement',
-            child: const Icon(Icons.remove),
+          const SizedBox(height: 40),
+          // モダンなボタン
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildActionButton(
+                icon: Icons.remove,
+                onPressed: _decrementCounter,
+                color: const Color(0xFFFF5252),
+              ),
+              const SizedBox(width: 24),
+              _buildActionButton(
+                icon: Icons.add,
+                onPressed: _incrementCounter,
+                color: const Color(0xFF4CAF50),
+              ),
+            ],
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
+
+Widget _buildActionButton({
+  required IconData icon,
+  required VoidCallback onPressed,
+  required Color color,
+}) {
+  return Material(
+    borderRadius: BorderRadius.circular(15),
+    elevation: 4,
+    color: color,
+    child: InkWell(
+      borderRadius: BorderRadius.circular(15),
+      onTap: onPressed,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        child: Icon(icon, color: Colors.white, size: 28),
+      ),
+    ),
+  );
+}
 }

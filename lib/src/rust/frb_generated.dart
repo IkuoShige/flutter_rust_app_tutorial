@@ -68,26 +68,22 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.9.0';
 
   @override
-  int get rustContentHash => 770323981;
+  int get rustContentHash => -178615730;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
-    stem: 'rust_lib_flutter_rust_app',
+    stem: 'rust_lib_my_app',
     ioDirectory: 'rust/target/release/',
     webPrefix: 'pkg/',
   );
 }
 
 abstract class RustLibApi extends BaseApi {
-  Future<AppState> crateApiSimpleAppStateDefault();
-
-  Future<AppState> crateApiSimpleDecrementCounter({required AppState state});
-
-  Future<AppState> crateApiSimpleGetInitialState();
+  Future<int> crateApiSimpleDecrementCounter({required int value});
 
   String crateApiSimpleGreet({required String name});
 
-  Future<AppState> crateApiSimpleIncrementCounter({required AppState state});
+  Future<int> crateApiSimpleIncrementCounter({required int value});
 
   Future<void> crateApiSimpleInitApp();
 }
@@ -101,44 +97,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   });
 
   @override
-  Future<AppState> crateApiSimpleAppStateDefault() {
+  Future<int> crateApiSimpleDecrementCounter({required int value}) {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_i_32(value, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
             funcId: 1, port: port_);
       },
       codec: SseCodec(
-        decodeSuccessData: sse_decode_app_state,
-        decodeErrorData: null,
-      ),
-      constMeta: kCrateApiSimpleAppStateDefaultConstMeta,
-      argValues: [],
-      apiImpl: this,
-    ));
-  }
-
-  TaskConstMeta get kCrateApiSimpleAppStateDefaultConstMeta =>
-      const TaskConstMeta(
-        debugName: "app_state_default",
-        argNames: [],
-      );
-
-  @override
-  Future<AppState> crateApiSimpleDecrementCounter({required AppState state}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_box_autoadd_app_state(state, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 2, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_app_state,
+        decodeSuccessData: sse_decode_i_32,
         decodeErrorData: null,
       ),
       constMeta: kCrateApiSimpleDecrementCounterConstMeta,
-      argValues: [state],
+      argValues: [value],
       apiImpl: this,
     ));
   }
@@ -146,31 +118,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   TaskConstMeta get kCrateApiSimpleDecrementCounterConstMeta =>
       const TaskConstMeta(
         debugName: "decrement_counter",
-        argNames: ["state"],
-      );
-
-  @override
-  Future<AppState> crateApiSimpleGetInitialState() {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 3, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_app_state,
-        decodeErrorData: null,
-      ),
-      constMeta: kCrateApiSimpleGetInitialStateConstMeta,
-      argValues: [],
-      apiImpl: this,
-    ));
-  }
-
-  TaskConstMeta get kCrateApiSimpleGetInitialStateConstMeta =>
-      const TaskConstMeta(
-        debugName: "get_initial_state",
-        argNames: [],
+        argNames: ["value"],
       );
 
   @override
@@ -179,7 +127,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       callFfi: () {
         final serializer = SseSerializer(generalizedFrbRustBinding);
         sse_encode_String(name, serializer);
-        return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 4)!;
+        return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 2)!;
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_String,
@@ -197,20 +145,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<AppState> crateApiSimpleIncrementCounter({required AppState state}) {
+  Future<int> crateApiSimpleIncrementCounter({required int value}) {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_box_autoadd_app_state(state, serializer);
+        sse_encode_i_32(value, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 5, port: port_);
+            funcId: 3, port: port_);
       },
       codec: SseCodec(
-        decodeSuccessData: sse_decode_app_state,
+        decodeSuccessData: sse_decode_i_32,
         decodeErrorData: null,
       ),
       constMeta: kCrateApiSimpleIncrementCounterConstMeta,
-      argValues: [state],
+      argValues: [value],
       apiImpl: this,
     ));
   }
@@ -218,7 +166,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   TaskConstMeta get kCrateApiSimpleIncrementCounterConstMeta =>
       const TaskConstMeta(
         debugName: "increment_counter",
-        argNames: ["state"],
+        argNames: ["value"],
       );
 
   @override
@@ -227,7 +175,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 6, port: port_);
+            funcId: 4, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_unit,
@@ -248,24 +196,6 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   String dco_decode_String(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as String;
-  }
-
-  @protected
-  AppState dco_decode_app_state(dynamic raw) {
-    // Codec=Dco (DartCObject based), see doc to use other codecs
-    final arr = raw as List<dynamic>;
-    if (arr.length != 2)
-      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
-    return AppState(
-      counter: dco_decode_i_32(arr[0]),
-      message: dco_decode_String(arr[1]),
-    );
-  }
-
-  @protected
-  AppState dco_decode_box_autoadd_app_state(dynamic raw) {
-    // Codec=Dco (DartCObject based), see doc to use other codecs
-    return dco_decode_app_state(raw);
   }
 
   @protected
@@ -297,20 +227,6 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var inner = sse_decode_list_prim_u_8_strict(deserializer);
     return utf8.decoder.convert(inner);
-  }
-
-  @protected
-  AppState sse_decode_app_state(SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    var var_counter = sse_decode_i_32(deserializer);
-    var var_message = sse_decode_String(deserializer);
-    return AppState(counter: var_counter, message: var_message);
-  }
-
-  @protected
-  AppState sse_decode_box_autoadd_app_state(SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    return (sse_decode_app_state(deserializer));
   }
 
   @protected
@@ -347,20 +263,6 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   void sse_encode_String(String self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_list_prim_u_8_strict(utf8.encoder.convert(self), serializer);
-  }
-
-  @protected
-  void sse_encode_app_state(AppState self, SseSerializer serializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_i_32(self.counter, serializer);
-    sse_encode_String(self.message, serializer);
-  }
-
-  @protected
-  void sse_encode_box_autoadd_app_state(
-      AppState self, SseSerializer serializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_app_state(self, serializer);
   }
 
   @protected

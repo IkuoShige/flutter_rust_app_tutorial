@@ -6,38 +6,11 @@
 import '../frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-Future<AppState> incrementCounter({required AppState state}) =>
-    RustLib.instance.api.crateApiSimpleIncrementCounter(state: state);
-
-Future<AppState> decrementCounter({required AppState state}) =>
-    RustLib.instance.api.crateApiSimpleDecrementCounter(state: state);
-
-Future<AppState> getInitialState() =>
-    RustLib.instance.api.crateApiSimpleGetInitialState();
-
 String greet({required String name}) =>
     RustLib.instance.api.crateApiSimpleGreet(name: name);
 
-class AppState {
-  final int counter;
-  final String message;
+Future<int> incrementCounter({required int value}) =>
+    RustLib.instance.api.crateApiSimpleIncrementCounter(value: value);
 
-  const AppState({
-    required this.counter,
-    required this.message,
-  });
-
-  static Future<AppState> default_() =>
-      RustLib.instance.api.crateApiSimpleAppStateDefault();
-
-  @override
-  int get hashCode => counter.hashCode ^ message.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is AppState &&
-          runtimeType == other.runtimeType &&
-          counter == other.counter &&
-          message == other.message;
-}
+Future<int> decrementCounter({required int value}) =>
+    RustLib.instance.api.crateApiSimpleDecrementCounter(value: value);

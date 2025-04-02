@@ -1,5 +1,5 @@
 [package]
-name = "rust_lib_flutter_rust_app"
+name = "rust_lib_my_app"
 version = "0.1.0"
 edition = "2021"
 

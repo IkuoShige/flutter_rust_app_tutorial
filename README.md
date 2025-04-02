@@ -1,0 +1,1 @@
+# flutter_rust_app_tutorial

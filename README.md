@@ -1,4 +1,4 @@
-# flutter_rust_app
+# flutter_rust_app_tutorial
 
 A new Flutter project.
 
